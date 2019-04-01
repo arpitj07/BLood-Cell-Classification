@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Blood Cell Classification APP</title>
+	<style >
+		* { font-size: 30px;
+		 }
+	</style>
+</head>
+<body>
+	<input type="file" id="Image-Selector">
+	<button id="predict-button">Predict</button>
+	<p style="font-weight: bold">Predictions</p>
+	<p> EOSINOPHIL: <span id="EOSINOPHIL-predictions"></span></p>
+	<p> LYMPHOCYTE: <span id="LYMPHOCYTE-predictions"></span></p>
+	<p> MONOCYTE: <span id="MONOCYTE-predictions"></span></p>
+	<p> NEUTROPHIL: <span id="NEUTROPHIL-predictions"></span></p>
+	<img id="selected-image" src="">
+
+	<script src="http://code.jquery.com/jquery-3.3.1.min.js" type="text/javascript" ></script>
+	<script>
+		let base64Image;
+		$("#Image-Selector").change(function(){
+			let reader = new FileReader();
+			reader.onload = function(e) {
+				let dataURL = reader.result;
+				$("#selected-image").attr("src" , dataURL);
+				base64Image = dataURL.replace("data:image/jpeg;base64,","");
+				console.log(base64Image);
+			} 
+			reader.readAsDataURL($("#Image-Selector")[0].files[0]);
+			$("#EOSINOPHIL-predictions").text("");
+			$("#LYMPHOCYTE-predictions").text("");
+			$("#MONOCYTE-predictions").text("");
+			$("#NEUTROPHIL-predictions").text("");
+		});
+
+
+		$("#predict-button").click(function(event){
+			let message = {
+				image: base64Image
+			}
+			console.log(message);
+			$.post("http://192.168.1.79:5000/predict" , JSON.stringify(message) , function(response){
+				$("#EOSINOPHIL-predictions").text(response.prediction.EOSINOPHIL.toFixed(6));
+				$("#LYMPHOCYTE-predictions").text(response.prediction.LYMPHOCYTE.toFixed(6));
+				$("#MONOCYTE-predictions").text(response.prediction.MONOCYTE.toFixed(6));
+				$("#NEUTROPHIL-predictions").text(response.prediction.NEUTROPHIL.toFixed(6));
+				console.log(response);
+			});
+
+		});
+	</script>
+</body>
+</html>
